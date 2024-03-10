@@ -23,7 +23,7 @@ open import Definition.LogicalRelation R
 -- open import Definition.LogicalRelation.Properties.Reflexivity R
 
 open import Tools.Function
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat; 1+; s≤s; n<1+n)
 open import Tools.Product
 open import Tools.Empty using (⊥; ⊥-elim)
 import Tools.PropositionalEquality as PE
@@ -44,7 +44,7 @@ data MaybeEmb {ℓ′} (l : TypeLevel) (⊩⟨_⟩ : TypeLevel → Set ℓ′) :
 -- Specific reducible types with possible embedding
 
 _⊩⟨_⟩U : (Γ : Con Term n) (l : TypeLevel) → Set a
-Γ ⊩⟨ l ⟩U = MaybeEmb l (λ l′ → Γ ⊩′⟨ l′ ⟩U (U l))
+Γ ⊩⟨ l ⟩U = MaybeEmb l (λ l′ → Γ ⊩′⟨ l′ ⟩U (U l′))
 
 _⊩⟨_⟩ℕ_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set a
 Γ ⊩⟨ l ⟩ℕ A = MaybeEmb l (λ l′ → Γ ⊩ℕ A)
@@ -57,7 +57,6 @@ _⊩⟨_⟩Unit⟨_⟩_ : (Γ : Con Term n) (l : TypeLevel) (s : Strength) (A : 
 
 _⊩⟨_⟩ne_ : (Γ : Con Term n) (l : TypeLevel) (A : Term n) → Set a
 Γ ⊩⟨ l ⟩ne A = MaybeEmb l (λ l′ → Γ ⊩ne⟨ l′ ⟩ A)
-                                -- TODO correct ?
 
 _⊩⟨_⟩B⟨_⟩_ : (Γ : Con Term n) (l : TypeLevel) (W : BindingType) (A : Term n) → Set a
 Γ ⊩⟨ l ⟩B⟨ W ⟩ A = MaybeEmb l (λ l′ → Γ ⊩′⟨ l′ ⟩B⟨ W ⟩ A)
