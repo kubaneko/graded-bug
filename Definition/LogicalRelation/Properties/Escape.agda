@@ -44,7 +44,7 @@ escape (Uᵣ′ l′ l< [ ⊢A , ⊢B , D ]) = ⊢A
 escape (ℕᵣ [ ⊢A , ⊢B , D ]) = ⊢A
 escape (Emptyᵣ [ ⊢A , ⊢B , D ]) = ⊢A
 escape (Unitᵣ (Unitₜ [ ⊢A , ⊢B , D ] _)) = ⊢A
-escape (ne′ l′ l< K [ ⊢A , ⊢B , D ] neK K≡K) = ⊢A
+escape (ne′ K [ ⊢A , ⊢B , D ] neK K≡K) = ⊢A
 escape (Bᵣ′ _ _ _ [ ⊢A , _ , _ ] _ _ _ _ _ _ _) = ⊢A
 escape (Idᵣ ⊩A) = ⊢A-red (_⊩ₗId_.⇒*Id ⊩A)
 escape (emb ≤′-refl A) = escape A
@@ -62,7 +62,7 @@ escapeTerm (Emptyᵣ D) (Emptyₜ e [ ⊢t , ⊢u , d ] t≡t prop) =
   conv ⊢t (sym (subset* (red D)))
 escapeTerm (Unitᵣ (Unitₜ D _)) (Unitₜ e [ ⊢t , ⊢u , d ] _ prop) =
   conv ⊢t (sym (subset* (red D)))
-escapeTerm (ne′ l′ l< K D neK K≡K) (neₜ k [ ⊢t , ⊢u , d ] nf) =
+escapeTerm (ne′ K D neK K≡K) (neₜ k [ ⊢t , ⊢u , d ] nf) =
   conv ⊢t (sym (subset* (red D)))
 escapeTerm (Bᵣ′ BΠ! _ _ D _ _ _ _ _ _ _) (Πₜ _ [ ⊢t , _ , _ ] _ _ _ _) =
   conv ⊢t (sym (subset* (red D)))
@@ -138,7 +138,7 @@ escapeTermEq {l} {Γ} {A} {t} {u} (Unitᵣ {s = 𝕨} (Unitₜ D _)) (Unitₜ₌
   let whK , whK′ = usplit prop
   in  ≅ₜ-red (red D) (redₜ d) (redₜ d′) Unitₙ
              whK whK′ k≡k′
-escapeTermEq (ne′ l′ l< K D neK K≡K)
+escapeTermEq (ne′ K D neK K≡K)
                  (neₜ₌ k m d d′ (neNfₜ₌ neT neU t≡u)) =
   ≅ₜ-red (red D) (redₜ d) (redₜ d′) (ne neK) (ne neT) (ne neU)
          (~-to-≅ₜ t≡u)
@@ -193,7 +193,7 @@ escapeTermEq (emb (≤′-step k) A) t≡u = escapeTermEq (emb k A) t≡u
     Unit-allowed _     □
   (Unitᵣ (Unitₜ [ _ , _ , D ] ok)) → case whnfRed* D Unitₙ of λ where
     PE.refl → ok
-  (ne (ne l′ l< A [ ⊢Unit , _ , D ] neA _)) →
+  (ne (ne A [ ⊢Unit , _ , D ] neA _)) →
                   $⟨ D , ne neA ⟩
     Γ ⊢ Unit! ↘ A  →⟨ whrDet* (id ⊢Unit , Unitₙ) ⟩
     Unit! PE.≡ A   →⟨ ⊥-elim ∘→ Unit≢ne neA ⟩
@@ -227,7 +227,7 @@ escapeTermEq (emb (≤′-step k) A) t≡u = escapeTermEq (emb k A) t≡u
     ⊥-elim (Empty≢ΠΣ b (whrDet* (D , Emptyₙ) (id ⊢ΠAB , ΠΣₙ)))
   (Unitᵣ (Unitₜ [ ⊢ΠAB , _ , D ] _)) →
     ⊥-elim (Unit≢ΠΣ b (whrDet* (D , Unitₙ) (id ⊢ΠAB , ΠΣₙ)))
-  (ne (ne  l′ l< _ [ ⊢ΠAB , _ , D ] neK _)) →
+  (ne (ne _ [ ⊢ΠAB , _ , D ] neK _)) →
     ⊥-elim (ΠΣ≢ne b neK (whrDet* (id ⊢ΠAB , ΠΣₙ) (D , ne neK)))
   (Bᵣ′ (BM BMΠ _ _) _ _ [ ⊢ΠAB , _ , D ] _ _ _ _ _ _ ok) →
     case whrDet* (id ⊢ΠAB , ΠΣₙ) (D , ΠΣₙ) of λ {

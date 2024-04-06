@@ -67,7 +67,7 @@ reflEq (Uᵣ′ l′ l< ⊢Γ) = ⊢Γ
 reflEq (ℕᵣ D) = red D
 reflEq (Emptyᵣ D) = red D
 reflEq (Unitᵣ (Unitₜ D _)) = red D
-reflEq (ne′ l′ l< K D neK K≡K ) = ne₌ l′ l< K D neK K≡K
+reflEq (ne′ K D neK K≡K ) = ne₌ K D neK K≡K
 reflEq (Bᵣ′ _ _ _ [ _ , _ , D ] _ _ A≡A [F] [G] _ _) =
    B₌ _ _ D A≡A
       (λ ρ ⊢Δ → reflEq ([F] ρ ⊢Δ))
@@ -96,7 +96,7 @@ reflEqTerm (Unitᵣ {s = 𝕤} D) (Unitₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
 reflEqTerm (Unitᵣ {s = 𝕨} D) (Unitₜ n [ ⊢t , ⊢u , d ] t≡t prop) =
   Unitₜ₌ n n [ ⊢t , ⊢u , d ] [ ⊢t , ⊢u , d ]
          t≡t (reflUnitʷ-prop prop)
-reflEqTerm (ne′ K D neK K≡K e f) (neₜ k d (neNfₜ neK₁ ⊢k k≡k)) =
+reflEqTerm (ne′ K D neK K≡K) (neₜ k d (neNfₜ neK₁ ⊢k k≡k)) =
   neₜ₌ k k d d (neNfₜ₌ neK₁ neK₁ k≡k)
 reflEqTerm
   (Bᵣ′ BΠ! _ _ _ _ _ _ [F] _ _ _) [t]@(Πₜ f d funcF f≡f [f] _) =

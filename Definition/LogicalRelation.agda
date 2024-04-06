@@ -249,12 +249,9 @@ data _≤_ (l : TypeLevel) : TypeLevel → Set where
 record _⊩ne⟨_⟩_ {ℓ : Nat} (Γ : Con Term ℓ) (l : TypeLevel) (A : Term ℓ) : Set a where
   constructor ne
   field
-    l′          : TypeLevel
-    lower-level : l′ < l
     K           : Term ℓ
     D           : Γ ⊢ A :⇒*: K
     neK         : Neutral K
-    lower-level : l′ < l
     K≡K         : Γ ⊢ K ≅ K
 
 -- Neutral type equality
@@ -262,12 +259,9 @@ record _⊩ne⟨_⟩_≡_/_ (Γ : Con Term ℓ) (l : TypeLevel) (A B : Term ℓ)
   constructor ne₌
   open _⊩ne⟨_⟩_ [A]
   field
-    l′          : TypeLevel
-    lower-level : l′ < l
     M           : Term ℓ
     D′          : Γ ⊢ B :⇒*: M
     neM         : Neutral M
-    lower-level : l′ < l
     K≡M         : Γ ⊢ K ≅ M
 
 -- Neutral term
@@ -655,7 +649,7 @@ pattern Σₜ p d p≡p pProd prop =  p , d , p≡p , pProd , prop
 pattern Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop = p , r , d , d′ , p≅r , [t] , [u] , pProd , rProd , prop
 
 pattern Uᵣ′ a b c = Uᵣ (Uᵣ a b c)
-pattern ne′ a b c d e f = ne (ne a b c d e f)
+pattern ne′ a b c d = ne (ne a b c d)
 pattern Bᵣ′ W a b c d e f g h i j = Bᵣ W (Bᵣ a b c d e f g h i j)
 pattern Πᵣ′ a b c d e f g h i j = Bᵣ′ BΠ! a b c d e f g h i j
 pattern 𝕨′ a b c d e f g h i j = Bᵣ′ BΣ! a b c d e f g h i j
