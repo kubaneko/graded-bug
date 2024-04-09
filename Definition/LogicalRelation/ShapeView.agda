@@ -277,10 +277,22 @@ extractMaybeEmb : ∀ {l ⊩⟨_⟩} → MaybeEmb {ℓ′ = a} l ⊩⟨_⟩ → 
 extractMaybeEmb (noemb x) = _ , x
 extractMaybeEmb (emb _ x) = extractMaybeEmb x
 
--- Traverse emb proof
-data ShapeEmb (Γ : Con Term n) : ∀ l l′ A (l< : l < l′) (p : Γ ⊩⟨ l ⟩ A) (q : Γ ⊩⟨ l′ ⟩ A) → Set a where
-  refl-emb : ∀ {A l} PA → ShapeEmb Γ l (1+ l) A ≤′-refl PA (emb ≤′-refl PA)
-  refl-step : ∀ {A l l′ l<} PA PA′ → ShapeEmb Γ l l′ A l< PA PA′ → ShapeEmb Γ l (1+ l′) A (≤′-step l<) PA (emb ≤′-refl PA′)
+
+data ShapeEmb (Γ : Con Term n) : ∀ l′ l A (p : l′ < l) → Γ ⊩⟨ l′ ⟩ A → LogRelKit._⊩_ (kit-helper p) Γ A → Set a where
+  refl-emb : ∀ {A l′} PA → ShapeEmb Γ l′ (1+ l′) A ≤′-refl PA PA
+  step-emb : ∀ {A l′ l l<} PA PB → ShapeEmb Γ l′ l A l< PA PB → ShapeEmb Γ l′ (1+ l) A (≤′-step l<) PA PB
+
+lemma : {l′ l : TypeLevel} {Γ : Con Term n} {A : Term n} → (p : l′ < l) → LogRelKit._⊩_ (kit-helper p) Γ A  → Γ ⊩⟨ l′ ⟩ A
+lemma ≤′-refl A = A
+lemma (≤′-step p) A = lemma p A
+
+lemma1 : {l′ l : TypeLevel} → (p : l′ < l ) → (x : LogRelKit._⊩_ (kit-helper p) Γ A) → (ShapeEmb Γ l′ l A p (lemma p x) x)
+lemma1 ≤′-refl x = refl-emb x
+lemma1 (≤′-step p) x = step-emb (lemma (≤′-step p) x) x (lemma1 p x)
+
+lemma2 : {l′ l : TypeLevel} → (p : l′ < l ) → (x : LogRelKit._⊩_ (kit-helper p) Γ A) → Γ ⊩⟨ l ⟩ A ≡ B / emb p x → Γ ⊩⟨ l′ ⟩ A ≡ B / lemma p x
+lemma2 ≤′-refl x eq = eq
+lemma2 (≤′-step p) x eq = lemma2 p x eq
 
 -- A view for constructor equality of types where embeddings are ignored
 data ShapeView (Γ : Con Term n) : ∀ l l′ A B (p : Γ ⊩⟨ l ⟩ A) (q : Γ ⊩⟨ l′ ⟩ B) → Set a where
@@ -293,14 +305,14 @@ data ShapeView (Γ : Con Term n) : ∀ l l′ A B (p : Γ ⊩⟨ l ⟩ A) (q : �
   Bᵥ : ∀ {A B l l′} W BA BB
     → ShapeView Γ l l′ A B (Bᵣ W BA) (Bᵣ W BB)
   Idᵥ : ∀ ⊩A ⊩B → ShapeView Γ l l′ A B (Idᵣ ⊩A) (Idᵣ ⊩B)
-  embl- : ∀ {A B l l′′ l′ p q p′} (l< : l′′ < l)
-        → ShapeView Γ l′′ l′ A B p q
+  embl- : ∀ {A B l l′′ l′ p q} (l< : l′′ < l) {p′}
         → ShapeEmb Γ l′′ l A l< p p′
-        → ShapeView Γ l l′ A B p′ q
-  emb-l : ∀ {A B l l′′ l′ p q q′} (l< : l′′ < l′)
-        → ShapeView Γ l l′′ A B p q
+        → ShapeView Γ l′′ l′ A B p q
+        → ShapeView Γ l l′ A B (emb l< p′) q
+  emb-l : ∀ {A B l l′′ l′ p q} (l< : l′′ < l′) {q′}
         → ShapeEmb Γ l′′ l′ B l< q q′
-        → ShapeView Γ l l′ A B p q′
+        → ShapeView Γ l l′′ A B p q
+        → ShapeView Γ l l′ A B p (emb l< q′)
 
 -- Construct an shape view from an equality (aptly named)
 goodCases : ∀ {l l′} ([A] : Γ ⊩⟨ l ⟩ A) ([B] : Γ ⊩⟨ l′ ⟩ B)
@@ -323,10 +335,16 @@ goodCases (Bᵣ BΣ! ΣA) (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
 ... | PE.refl = Bᵥ BΣ! ΣA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
 goodCases (Idᵣ ⊩A) (Idᵣ ⊩B) _ = Idᵥ ⊩A ⊩B
 
-goodCases {l = l} [A] (emb ≤′-refl x) A≡B = emb-l ≤′-refl (goodCases [A] x A≡B)
-goodCases {l = l} [A] (emb (≤′-step p) x) A≡B = {!emb> ≤′-refl ?!}
-goodCases {l′ = l} (emb ≤′-refl x) [B] A≡B = embl- ≤′-refl (goodCases x [B] A≡B)
-goodCases {l′ = l} (emb (≤′-step p) x) [B] A≡B = {!!}
+goodCases [A] (emb {l′ = l′₁} p x) A≡B = emb-l p (lemma1 p x) (v p x)
+  where
+    v : {l l′ : TypeLevel} (p : l < l′) → (x : LogRelKit._⊩_ (kit-helper p) _ _ ) → ShapeView _ _ _ _ _ [A] (lemma p x)
+    v ≤′-refl x = goodCases [A] x A≡B
+    v (≤′-step p) x = v p x
+goodCases (emb {l′ = l′₁} p x) [B] A≡B = embl- p (lemma1 p x) (v p x A≡B )
+  where
+    v : {l l′ : TypeLevel} (p : l < l′) → (x : LogRelKit._⊩_ (kit-helper p) _ _ ) →  _ ⊩⟨ l′ ⟩ _ ≡ _ / emb p x → ShapeView _ _ _ _ _ (lemma p x) [B]
+    v ≤′-refl x A≡B = goodCases x [B] A≡B
+    v (≤′-step p) x A≡B = v p x A≡B
 
 -- Refutable cases
 -- U ≡ _
@@ -480,15 +498,18 @@ data ShapeView₃ (Γ : Con Term n) : ∀ l l′ l″ A B C
     → ShapeView₃ Γ l l′ l″ A B C (Bᵣ W BA) (Bᵣ W′ BB) (Bᵣ W″ BC)
   Idᵥ :
     ∀ ⊩A ⊩B ⊩C → ShapeView₃ Γ l l′ l″ A B C (Idᵣ ⊩A) (Idᵣ ⊩B) (Idᵣ ⊩C)
-  embl-- : ∀ {A B C l l′ l' l'' p q r} (l< : l' < l'' )
+  embl-- : ∀ {A B C l l′ l' l'' p q r} (l< : l' < l'' ) {p′}
+         → ShapeEmb Γ l' l'' A l< p p′
          → ShapeView₃ Γ l' l l′ A B C p q r
-         → ShapeView₃ Γ l'' l l′ A B C (emb-⊩ l< p) q r
-  emb-l- : ∀ {A B C l l′ l' l'' p q r} (l< : l' < l'' )
+         → ShapeView₃ Γ l'' l l′ A B C (emb l< p′) q r
+  emb-l- : ∀ {A B C l l′ l' l'' p q r} (l< : l' < l'' ) {q′}
+         → ShapeEmb Γ l' l'' B l< q q′
          → ShapeView₃ Γ l l' l′ A B C p q r
-         → ShapeView₃ Γ l l'' l′ A B C p (emb-⊩ l< q) r
-  emb--l : ∀ {A B C l l′ l' l'' p q r} (l< : l' < l'' )
+         → ShapeView₃ Γ l l'' l′ A B C p (emb l< q′) r
+  emb--l : ∀ {A B C l l′ l' l'' p q r} (l< : l' < l'' ) {r′}
+         → ShapeEmb Γ l' l'' C l< r r′
          → ShapeView₃ Γ l l′ l' A B C p q r
-         → ShapeView₃ Γ l l′ l'' A B C p q (emb-⊩ l< r)
+         → ShapeView₃ Γ l l′ l'' A B C p q (emb l< r′)
 
 -- Combines two two-way views into a three-way view
 combine : ∀ {l l′ l″ l‴ A B C [A] [B] [B]′ [C]}
@@ -515,10 +536,10 @@ combine (Bᵥ BΣ! ΣA₁ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok))
   Bᵥ BΣ! BΣ! BΣ! ΣA₁ (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok) ΣB
 combine (Idᵥ ⊩A ⊩B) (Idᵥ _ ⊩C) =
   Idᵥ ⊩A ⊩B ⊩C
-combine (embl- l< [AB]) [BC] = embl-- l< (combine [AB] [BC])
-combine (emb-l l< [AB]) [BC] = emb-l- l< (combine [AB] [BC])
-combine [AB] (embl- l< [BC]) = combine [AB] [BC]
-combine [AB] (emb-l l< [BC]) = emb--l l< (combine [AB] [BC])
+combine (embl- l< se [AB]) [BC] = embl-- l< se (combine [AB] [BC])
+combine (emb-l l< se [AB]) [BC] = emb-l- l< se (combine [AB] [BC])
+combine [AB] (embl- l< se [BC]) = combine [AB] [BC]
+combine [AB] (emb-l l< se [BC]) = emb--l l< se (combine [AB] [BC])
 
 -- Refutable cases
 -- U ≡ _
