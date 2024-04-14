@@ -649,7 +649,7 @@ pattern Σₜ p d p≡p pProd prop =  p , d , p≡p , pProd , prop
 pattern Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop = p , r , d , d′ , p≅r , [t] , [u] , pProd , rProd , prop
 
 pattern Uᵣ′ a b c = Uᵣ (Uᵣ a b c)
-pattern ne′ a b c d = ne (ne a b c f)
+pattern ne′ a b c d = ne (ne a b c d)
 pattern Bᵣ′ W a b c d e f g h i j = Bᵣ W (Bᵣ a b c d e f g h i j)
 pattern Πᵣ′ a b c d e f g h i j = Bᵣ′ BΠ! a b c d e f g h i j
 pattern 𝕨′ a b c d e f g h i j = Bᵣ′ BΣ! a b c d e f g h i j
@@ -694,12 +694,13 @@ _⊩⟨_⟩_∷_/_ : (Γ : Con Term ℓ) (l : TypeLevel) (t A : Term ℓ) → Γ
 _⊩⟨_⟩_≡_∷_/_ : (Γ : Con Term ℓ) (l : TypeLevel) (t u A : Term ℓ) → Γ ⊩⟨ l ⟩ A → Set a
 Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A] = Γ ⊩ t ≡ u ∷ A / [A] where open LogRelKit (kit l)
 
-emb-⊩ : {l′ l : TypeLevel} {Γ : Con Term ℓ} {A : Term ℓ} → l′ < l → Γ ⊩⟨ l′ ⟩ A → Γ ⊩⟨ l ⟩ A
-emb-⊩ p A = emb p (lemma p A)
-  where
-  lemma : {l′ l : TypeLevel} {Γ : Con Term ℓ} {A : Term ℓ} → (p : l′ < l) → Γ ⊩⟨ l′ ⟩ A → LogRelKit._⊩_ (kit-helper p) Γ A
-  lemma ≤′-refl A = A
-  lemma (≤′-step p) A = lemma p A
+opaque
+  emb-⊩ : {l′ l : TypeLevel} {Γ : Con Term ℓ} {A : Term ℓ} → l′ < l → Γ ⊩⟨ l′ ⟩ A → Γ ⊩⟨ l ⟩ A
+  emb-⊩ p A = emb p (lemma p A)
+    where
+    lemma : {l′ l : TypeLevel} {Γ : Con Term ℓ} {A : Term ℓ} → (p : l′ < l) → Γ ⊩⟨ l′ ⟩ A → LogRelKit._⊩_ (kit-helper p) Γ A
+    lemma ≤′-refl A = A
+    lemma (≤′-step p) A = lemma p A
 
 ------------------------------------------------------------------------
 -- Some definitions related to the identity type

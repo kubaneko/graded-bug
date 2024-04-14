@@ -25,7 +25,7 @@ open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties.Conversion R
 
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat hiding (_<_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
@@ -119,7 +119,8 @@ symEqT
                           ([G]₁ [ρ] ⊢Δ [a])
                           (symEq ([G] [ρ] ⊢Δ [a]₁) [ρG′a]
                                  ([G≡G′] [ρ] ⊢Δ [a]₁)))
-symEqT (Uᵥ (Uᵣ _ _ _) (Uᵣ _ _ _)) A≡B = PE.refl
+symEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁)) D with whrDet* (red D , Uₙ) (red ⇒*U₁ , Uₙ)
+symEqT (Uᵥ (Uᵣ l′ l< ⇒*U) (Uᵣ l′₁ l<₁ ⇒*U₁)) D | PE.refl = ⇒*U
 symEqT (Idᵥ ⊩A ⊩B) A≡B =
   case
     whrDet*
@@ -147,11 +148,11 @@ symEqT (Idᵥ ⊩A ⊩B) A≡B =
     } }
   where
   open _⊩ₗId_≡_/_ A≡B
-symEqT (emb⁰¹ x) A≡B = symEqT x A≡B
-symEqT (emb¹⁰ x) A≡B = symEqT x A≡B
 
-symEqTerm (Uᵣ′ .⁰ 0<1 ⊢Γ) (Uₜ₌ A B d d′ typeA typeB A≡B [A] [B] [A≡B]) =
-  Uₜ₌ B A d′ d typeB typeA (≅ₜ-sym A≡B) [B] [A] (symEq [A] [B] [A≡B])
+symEqT (embl- ≤′-refl (refl-emb _) x) A≡B = symEqT x A≡B
+symEqT (embl- (≤′-step l<) (step-emb _ _ e) x) A≡B = symEqT (embl- l< e x) A≡B
+symEqT (emb-l ≤′-refl (refl-emb _) x) A≡B = symEqT x A≡B
+symEqT (emb-l (≤′-step l<) (step-emb _ _ e) x) A≡B = symEqT (emb-l l< e x) A≡B
 symEqTerm (ℕᵣ D) (ℕₜ₌ k k′ d d′ t≡u prop) =
   ℕₜ₌ k′ k d′ d (≅ₜ-sym t≡u) (symNatural-prop prop)
 symEqTerm (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ t≡u prop) =
@@ -203,4 +204,14 @@ symEqTerm (Idᵣ ⊩A) t≡u =
     (case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
        (ne _ _ t′~u′) → ~-sym t′~u′
        (rfl₌ _)       → _)
-symEqTerm (emb 0<1 x) t≡u = symEqTerm x t≡u
+symEqTerm (emb ≤′-refl x) t≡u = symEqTerm x t≡u
+symEqTerm (emb (≤′-step p) x) t≡u = symEqTerm (emb p x) t≡u
+
+symEqTerm (Uᵣ′ l′ ≤′-refl ⇒*U) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =  Uₜ₌ B A d′ d typeB typeA (≅ₜ-sym A≡B) [u] [t] (symEq [t] [u] [t≡u])
+symEqTerm (Uᵣ′ l′ (≤′-step l<) ⇒*U) teq =  helper₁ l< (symEqTerm ( Uᵣ′ l′ l<  ⇒*U ) {!!})
+  where
+    helper₂ : {u t : Term n} {l′ l : TypeLevel} → (l< : l′ < l) → _ ⊩⟨ Nat.suc l ⟩ u ≡ t ∷ _ / Uᵣ′ l′ (≤′-step l<) _  → _ ⊩⟨ l ⟩ u ≡ t ∷ _ / Uᵣ′ l′ l< _
+    helper₂ l< (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) = Uₜ₌ A B {!!} {!!} typeA typeB {!!} {!!} {!!} {!!}
+    helper₁ : {u t : Term n} {l′ l : TypeLevel} → (l< : l′ < l) → _ ⊩⟨ l ⟩ u ≡ t ∷ _ / Uᵣ′ l′ l< _ → _ ⊩⟨ Nat.suc l ⟩ u ≡ t ∷ _ / Uᵣ′ l′ (≤′-step l<) _
+    helper₁ l< (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =  Uₜ₌ {!!} {!!} {!!} {!!} {!!} {!!} {!!} {!!} {!!} {!!}
+-- Uₜ₌ B A d′ d typeB typeA (EqRelSet.≅ₜ-sym eqrel A≡B) [u] [t] ? ? {!!}

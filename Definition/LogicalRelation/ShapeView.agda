@@ -278,21 +278,23 @@ extractMaybeEmb (noemb x) = _ , x
 extractMaybeEmb (emb _ x) = extractMaybeEmb x
 
 
-data ShapeEmb (Γ : Con Term n) : ∀ l′ l A (p : l′ < l) → Γ ⊩⟨ l′ ⟩ A → LogRelKit._⊩_ (kit-helper p) Γ A → Set a where
+data ShapeEmb (Γ : Con Term n) : ∀ l′ l A (p : l′ < l) → Γ ⊩⟨ l′ ⟩ A
+                            → LogRelKit._⊩_ (kit-helper p) Γ A → Set a where
   refl-emb : ∀ {A l′} PA → ShapeEmb Γ l′ (1+ l′) A ≤′-refl PA PA
-  step-emb : ∀ {A l′ l l<} PA PB → ShapeEmb Γ l′ l A l< PA PB → ShapeEmb Γ l′ (1+ l) A (≤′-step l<) PA PB
+  step-emb : ∀ {A l′ l l<} PA PB → ShapeEmb Γ l′ l A l< PA PB
+                            → ShapeEmb Γ l′ (1+ l) A (≤′-step l<) PA PB
 
-lemma : {l′ l : TypeLevel} {Γ : Con Term n} {A : Term n} → (p : l′ < l) → LogRelKit._⊩_ (kit-helper p) Γ A  → Γ ⊩⟨ l′ ⟩ A
-lemma ≤′-refl A = A
-lemma (≤′-step p) A = lemma p A
+helperToLogRel : {l′ l : TypeLevel} {Γ : Con Term n} {A : Term n}
+              → (p : l′ < l) → LogRelKit._⊩_ (kit-helper p) Γ A  → Γ ⊩⟨ l′ ⟩ A
+helperToLogRel ≤′-refl A = A
+helperToLogRel (≤′-step p) A = helperToLogRel p A
 
-lemma1 : {l′ l : TypeLevel} → (p : l′ < l ) → (x : LogRelKit._⊩_ (kit-helper p) Γ A) → (ShapeEmb Γ l′ l A p (lemma p x) x)
-lemma1 ≤′-refl x = refl-emb x
-lemma1 (≤′-step p) x = step-emb (lemma (≤′-step p) x) x (lemma1 p x)
+helperToShapeEmb : {l′ l : TypeLevel} → (p : l′ < l )
+  → (x : LogRelKit._⊩_ (kit-helper p) Γ A) → (ShapeEmb Γ l′ l A p (helperToLogRel p x) x)
+helperToShapeEmb ≤′-refl x = refl-emb x
+helperToShapeEmb (≤′-step p) x =
+                step-emb (helperToLogRel (≤′-step p) x) x (helperToShapeEmb p x)
 
-lemma2 : {l′ l : TypeLevel} → (p : l′ < l ) → (x : LogRelKit._⊩_ (kit-helper p) Γ A) → Γ ⊩⟨ l ⟩ A ≡ B / emb p x → Γ ⊩⟨ l′ ⟩ A ≡ B / lemma p x
-lemma2 ≤′-refl x eq = eq
-lemma2 (≤′-step p) x eq = lemma2 p x eq
 
 -- A view for constructor equality of types where embeddings are ignored
 data ShapeView (Γ : Con Term n) : ∀ l l′ A B (p : Γ ⊩⟨ l ⟩ A) (q : Γ ⊩⟨ l′ ⟩ B) → Set a where
@@ -335,14 +337,16 @@ goodCases (Bᵣ BΣ! ΣA) (Bᵣ′ BΣ! F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
 ... | PE.refl = Bᵥ BΣ! ΣA (Bᵣ F G D ⊢F ⊢G A≡A [F] [G] G-ext ok)
 goodCases (Idᵣ ⊩A) (Idᵣ ⊩B) _ = Idᵥ ⊩A ⊩B
 
-goodCases [A] (emb {l′ = l′₁} p x) A≡B = emb-l p (lemma1 p x) (v p x)
+goodCases [A] (emb {l′ = l′₁} p x) A≡B = emb-l p (helperToShapeEmb p x) (v p x)
   where
-    v : {l l′ : TypeLevel} (p : l < l′) → (x : LogRelKit._⊩_ (kit-helper p) _ _ ) → ShapeView _ _ _ _ _ [A] (lemma p x)
+    v : {l l′ : TypeLevel} (p : l < l′) → (x : LogRelKit._⊩_ (kit-helper p) _ _ )
+                                  → ShapeView _ _ _ _ _ [A] (helperToLogRel p x)
     v ≤′-refl x = goodCases [A] x A≡B
     v (≤′-step p) x = v p x
-goodCases (emb {l′ = l′₁} p x) [B] A≡B = embl- p (lemma1 p x) (v p x A≡B )
+goodCases (emb {l′ = l′₁} p x) [B] A≡B = embl- p (helperToShapeEmb p x) (v p x A≡B )
   where
-    v : {l l′ : TypeLevel} (p : l < l′) → (x : LogRelKit._⊩_ (kit-helper p) _ _ ) →  _ ⊩⟨ l′ ⟩ _ ≡ _ / emb p x → ShapeView _ _ _ _ _ (lemma p x) [B]
+    v : {l l′ : TypeLevel} (p : l < l′) → (x : LogRelKit._⊩_ (kit-helper p) _ _ )
+        →  _ ⊩⟨ l′ ⟩ _ ≡ _ / emb p x → ShapeView _ _ _ _ _ (helperToLogRel p x) [B]
     v ≤′-refl x A≡B = goodCases x [B] A≡B
     v (≤′-step p) x A≡B = v p x A≡B
 

@@ -30,4 +30,4 @@ maybeEmb′ : ∀ {l A}
           → Γ ⊩⟨ ⁰ ⟩ A
           → Γ ⊩⟨ l ⟩ A
 maybeEmb′ {l = 0} [A] =  [A]
-maybeEmb′ {l = 1+ k} [A] = emb (s≤s z≤n) (maybeEmb′ [A])
+maybeEmb′ {l = 1+ k} [A] = emb ≤′-refl (maybeEmb′ [A])
