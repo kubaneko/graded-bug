@@ -207,11 +207,17 @@ symEqTerm (Idᵣ ⊩A) t≡u =
 symEqTerm (emb ≤′-refl x) t≡u = symEqTerm x t≡u
 symEqTerm (emb (≤′-step p) x) t≡u = symEqTerm (emb p x) t≡u
 
-symEqTerm (Uᵣ′ l′ ≤′-refl ⇒*U) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =  Uₜ₌ B A d′ d typeB typeA (≅ₜ-sym A≡B) [u] [t] (symEq [t] [u] [t≡u])
-symEqTerm (Uᵣ′ l′ (≤′-step l<) ⇒*U) teq =  helper₁ l< (symEqTerm ( Uᵣ′ l′ l<  ⇒*U ) {!!})
+symEqTerm (Uᵣ′ l′ ≤′-refl ⇒*U) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
+               Uₜ₌ B A d′ d typeB typeA (≅ₜ-sym A≡B) [u] [t] (symEq [t] [u] [t≡u])
+symEqTerm (Uᵣ′ l′ (≤′-step l<) ⇒*U) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
+               helper₁ {⇒*U = ⇒*U} l< (symEqTerm ( Uᵣ′ l′ l<  ⇒*U )
+               (helper₂ {⇒*U = ⇒*U} l< (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u])))
   where
-    helper₂ : {u t : Term n} {l′ l : TypeLevel} → (l< : l′ < l) → _ ⊩⟨ Nat.suc l ⟩ u ≡ t ∷ _ / Uᵣ′ l′ (≤′-step l<) _  → _ ⊩⟨ l ⟩ u ≡ t ∷ _ / Uᵣ′ l′ l< _
-    helper₂ l< (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) = Uₜ₌ A B {!!} {!!} typeA typeB {!!} {!!} {!!} {!!}
-    helper₁ : {u t : Term n} {l′ l : TypeLevel} → (l< : l′ < l) → _ ⊩⟨ l ⟩ u ≡ t ∷ _ / Uᵣ′ l′ l< _ → _ ⊩⟨ Nat.suc l ⟩ u ≡ t ∷ _ / Uᵣ′ l′ (≤′-step l<) _
-    helper₁ l< (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =  Uₜ₌ {!!} {!!} {!!} {!!} {!!} {!!} {!!} {!!} {!!} {!!}
--- Uₜ₌ B A d′ d typeB typeA (EqRelSet.≅ₜ-sym eqrel A≡B) [u] [t] ? ? {!!}
+  helper₁ : {u t A : Term n} {l′ l : TypeLevel} {Γ : Con Term n} {⇒*U : Γ ⊢ A :⇒*: U l′} → (l< : l′ < l)
+    → Γ ⊩⟨ l ⟩ u ≡ t ∷ A / Uᵣ′ l′ l< ⇒*U → Γ ⊩⟨ Nat.suc l ⟩ u ≡ t ∷ A / Uᵣ′ l′ (≤′-step l<) ⇒*U
+  helper₁ p (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) = Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]
+  helper₂ : {u t A : Term n} {l′ l : TypeLevel} {Γ : Con Term n} {⇒*U : Γ ⊢ A :⇒*: U l′} → (l< : l′ < l)
+    → Γ ⊩⟨ Nat.suc l ⟩ u ≡ t ∷ A / Uᵣ′ l′ (≤′-step l<) ⇒*U  → Γ ⊩⟨ l ⟩ u ≡ t ∷ A / Uᵣ′ l′ l< ⇒*U
+  helper₂ ≤′-refl (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =  Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]
+  helper₂ {⇒*U = ⇒*U} (≤′-step l<) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
+    helper₁ {⇒*U =  ⇒*U} l< (helper₂ {⇒*U = ⇒*U} l< ( Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]))
