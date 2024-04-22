@@ -81,7 +81,7 @@ mutual
     let A≡U  = subset* {!D!}
         n~n′ = ~-conv n~n A≡U
         n≡n  = ~-to-≅ₜ n~n′
-    in Uₜ _ (idRedTerm:*: {!!}) (ne neN) (~-to-≅ₜ n≡n) {!neu ? ? ?!}
+    in Uₜ _ (idRedTerm:*: {!!}) (ne neN) (~-to-≅ₜ {!!}) {!neu ? ? ?!}
   -- Uₜ _ (idRedTerm:*: {!!}) (ne neN) (~-to-≅ₜ {!!}) {!neu ? ? ?!}
     -- Uₜ _ (idRedTerm:*: n) (ne neN) (~-to-≅ₜ n~n)
     --   (neu neN (univ n) (~-to-≅ n~n))
