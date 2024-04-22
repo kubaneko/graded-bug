@@ -28,7 +28,7 @@ open import Definition.LogicalRelation.Properties.Escape R
 open import Definition.LogicalRelation.Properties.Symmetry R
 
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat hiding (_<_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
@@ -54,7 +54,9 @@ neuEq′ : ∀ {l A B} ([A] : Γ ⊩⟨ l ⟩ne A)
 neuEq′ (noemb (ne K [ ⊢A , ⊢B , D ] neK K≡K)) neA neB A B A~B =
   let A≡K = whnfRed* D (ne neA)
   in  ne₌ _ (idRed:*: B) neB (PE.subst (λ x → _ ⊢ x ≅ _) A≡K A~B)
-neuEq′ (emb 0<1 x) neB A:≡:B = neuEq′ x neB A:≡:B
+neuEq′ (emb ≤′-refl x) neB A:≡:B = {!!}
+neuEq′ (emb (≤′-step p) x) neB A:≡:B = {!!}
+  -- neuEq′ x neB A:≡:B
 
 -- Neutrally equal types are of reducible equality.
 neuEq : ∀ {l A B} ([A] : Γ ⊩⟨ l ⟩ A)
@@ -69,14 +71,20 @@ neuEq [A] neA neB A B A~B =
                 (neuEq′ (ne-elim neA [A]) neA neB A B A~B)
 
 mutual
+
   -- Neutral reflexive terms are reducible.
   neuTerm : ∀ {l A n} ([A] : Γ ⊩⟨ l ⟩ A) (neN : Neutral n)
           → Γ ⊢ n ∷ A
           → Γ ⊢ n ~ n ∷ A
           → Γ ⊩⟨ l ⟩ n ∷ A / [A]
-  neuTerm (Uᵣ′ .⁰ 0<1 ⊢Γ) neN n n~n =
-    Uₜ _ (idRedTerm:*: n) (ne neN) (~-to-≅ₜ n~n)
-      (neu neN (univ n) (~-to-≅ n~n))
+  neuTerm (Uᵣ′ l l< [ ⊢A , ⊢B , D ]) neN n n~n =
+    let A≡U  = subset* {!D!}
+        n~n′ = ~-conv n~n A≡U
+        n≡n  = ~-to-≅ₜ n~n′
+    in Uₜ _ (idRedTerm:*: {!!}) (ne neN) (~-to-≅ₜ n≡n) {!neu ? ? ?!}
+  -- Uₜ _ (idRedTerm:*: {!!}) (ne neN) (~-to-≅ₜ {!!}) {!neu ? ? ?!}
+    -- Uₜ _ (idRedTerm:*: n) (ne neN) (~-to-≅ₜ n~n)
+    --   (neu neN (univ n) (~-to-≅ n~n))
   neuTerm (ℕᵣ [ ⊢A , ⊢B , D ]) neN n n~n =
     let A≡ℕ  = subset* D
         n~n′ = ~-conv n~n A≡ℕ
@@ -183,7 +191,9 @@ mutual
     , ~-conv n~n A≡Id }
     where
     open _⊩ₗId_ ⊩A
-  neuTerm (emb 0<1 x) neN n = neuTerm x neN n
+  neuTerm (emb ≤′-refl x) neN n = neuTerm x neN n
+  neuTerm (emb (≤′-step l<) x) neN n = neuTerm (emb l< x) neN n
+    -- neuTerm x neN n
 
   -- Neutrally equal terms are of reducible equality.
   neuEqTerm : ∀ {l A n n′} ([A] : Γ ⊩⟨ l ⟩ A)
@@ -192,12 +202,12 @@ mutual
             → Γ ⊢ n′ ∷ A
             → Γ ⊢ n ~ n′ ∷ A
             → Γ ⊩⟨ l ⟩ n ≡ n′ ∷ A / [A]
-  neuEqTerm (Uᵣ′ .⁰ 0<1 ⊢Γ) neN neN′ n n′ n~n′ =
-    let [n]  = neu neN  (univ n) (~-to-≅ (~-trans n~n′ (~-sym n~n′)))
-        [n′] = neu neN′ (univ n′) (~-to-≅ (~-trans (~-sym n~n′) n~n′))
-    in  Uₜ₌ _ _ (idRedTerm:*: n) (idRedTerm:*: n′) (ne neN) (ne neN′)
-            (~-to-≅ₜ n~n′) [n] [n′]
-            (neuEq [n] neN neN′ (univ n) (univ n′) (~-to-≅ n~n′))
+  neuEqTerm (Uᵣ′ l l< ⊢Γ) neN neN′ n n′ n~n′ = {!!}
+    -- let [n]  = neu neN  (univ n) (~-to-≅ (~-trans n~n′ (~-sym n~n′)))
+    --     [n′] = neu neN′ (univ n′) (~-to-≅ (~-trans (~-sym n~n′) n~n′))
+    -- in  Uₜ₌ _ _ (idRedTerm:*: n) (idRedTerm:*: n′) (ne neN) (ne neN′)
+    --         (~-to-≅ₜ n~n′) [n] [n′]
+    --         (neuEq [n] neN neN′ (univ n) (univ n′) (~-to-≅ n~n′))
   neuEqTerm (ℕᵣ [ ⊢A , ⊢B , D ]) neN neN′ n n′ n~n′ =
     let A≡ℕ = subset* D
         n~n′₁ = ~-conv n~n′ A≡ℕ
@@ -352,4 +362,5 @@ mutual
       (~-conv n~n′ A≡Id) }}}
     where
     open _⊩ₗId_ ⊩A
-  neuEqTerm (emb 0<1 x) neN neN′ n:≡:n′ = neuEqTerm x neN neN′ n:≡:n′
+  neuEqTerm (emb ≤′-refl x) neN neN′ n:≡:n′ = neuEqTerm x neN neN′ n:≡:n′
+  neuEqTerm (emb (≤′-step l<) x) neN neN′ n:≡:n′ = neuEqTerm (emb l< x) neN neN′ n:≡:n′

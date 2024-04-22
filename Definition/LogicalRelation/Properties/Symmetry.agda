@@ -220,4 +220,4 @@ symEqTerm (Uᵣ′ l′ (≤′-step l<) ⇒*U) (Uₜ₌ A B d d′ typeA typeB 
     → Γ ⊩⟨ Nat.suc l ⟩ u ≡ t ∷ A / Uᵣ′ l′ (≤′-step l<) ⇒*U  → Γ ⊩⟨ l ⟩ u ≡ t ∷ A / Uᵣ′ l′ l< ⇒*U
   helper₂ ≤′-refl (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =  Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]
   helper₂ {⇒*U = ⇒*U} (≤′-step l<) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
-    helper₁ {⇒*U =  ⇒*U} l< (helper₂ {⇒*U = ⇒*U} l< ( Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]))
+    Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]
