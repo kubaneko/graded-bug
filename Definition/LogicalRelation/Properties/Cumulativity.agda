@@ -20,6 +20,7 @@ open import Definition.Untyped M hiding (_∷_; K)
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.LogicalRelation R
+open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties.Reflexivity R
 
 open import Tools.Empty
@@ -38,7 +39,7 @@ private
     s : Strength
     p q : M
 
-mutual
+opaque mutual
   -- Well-formness is cumulative
   cumul : ∀ {l l′ A} → l < l′ → Γ ⊩⟨ l ⟩ A →  Γ ⊩⟨ l′ ⟩ A
   cumul ≤′-refl ⊩Ty = cumulStep ⊩Ty
@@ -50,7 +51,9 @@ mutual
   cumulStep (Emptyᵣ x) =  Emptyᵣ x
   cumulStep (Unitᵣ x) =  Unitᵣ x
   cumulStep (ne′ K D neK K≡K) = ne′ K D neK K≡K
-  cumulStep (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext ok) =  (Bᵣ′ W F G D ⊢F ⊢G A≡A (λ x x₁ → {!!}) {!!} G-ext ok)
+  cumulStep (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext ok) =
+    (Bᵣ′ W F G D ⊢F ⊢G A≡A (λ x x₁ → cumulStep ([F] x x₁)) (λ [ρ] ⊢Δ x → cumulStep ([G]  [ρ] ⊢Δ
+    (irrelevanceTerm (cumulStep ([F] [ρ] ⊢Δ)) ([F] [ρ] ⊢Δ) x)) ) (λ [ρ] ⊢Δ [a] [b] x → cumulEqStep ([G] [ρ] ⊢Δ {![a]!}) (G-ext [ρ] ⊢Δ {!!} {!!} {!!})) ok)
   cumulStep (Idᵣ (Idᵣ Ty lhs rhs ⇒*Id ⊩Ty ⊩lhs ⊩rhs)) =  Idᵣ
           (Idᵣ Ty lhs rhs ⇒*Id (cumul ≤′-refl ⊩Ty) (cumulTerm ≤′-refl  ⊩Ty ⊩lhs) (cumulTerm ≤′-refl  ⊩Ty ⊩rhs))
   cumulStep (emb l< [A]) = emb (≤′-step l<) [A]
@@ -58,20 +61,7 @@ mutual
   cumulTerm : ∀ {l l′ A t} → (l< : l < l′) → ([A] : Γ ⊩⟨ l ⟩ A)
                 → Γ ⊩⟨ l ⟩ t ∷ A / [A]
                 → Γ ⊩⟨ l′ ⟩ t ∷ A / cumul l< [A]
-  cumulTerm ≤′-refl ⊩Ty ⊩Tm = cumulTermStep ⊩Ty ⊩Tm 
-  cumulTerm (≤′-step l<) ⊩Ty ⊩Tm = cumulTermStep (cumul l< ⊩Ty) (cumulTerm l< ⊩Ty ⊩Tm)
-
-  cumulTermStep : ∀ {l A t} → ([A] : Γ ⊩⟨ l ⟩ A)
-                → Γ ⊩⟨ l ⟩ t ∷ A / [A]
-                → Γ ⊩⟨ 1+ l ⟩ t ∷ A / cumulStep [A]
-  cumulTermStep (Uᵣ x) (Uₜ A d typeA A≡A [t]) = Uₜ A d typeA A≡A [t]
-  cumulTermStep (ℕᵣ x) ⊩Tm = ⊩Tm
-  cumulTermStep (Emptyᵣ x) ⊩Tm = ⊩Tm
-  cumulTermStep (Unitᵣ x) ⊩Tm = ⊩Tm
-  cumulTermStep (ne x) (neₜ k d nf) = neₜ k d nf
-  cumulTermStep (Bᵣ W x) k = {!!}
-  cumulTermStep (Idᵣ x) (fst₁ , snd₁) =  fst₁ , {!!}
-  cumulTermStep (emb l< [A]) k = k
+  cumulTerm l< ⊩Ty ⊩Tm = irrelevanceTerm ⊩Ty (cumul l< ⊩Ty) ⊩Tm
 
   cumulEq :
     ∀ {l l′ A B} → (l< : l < l′) →
@@ -89,7 +79,7 @@ mutual
   cumulEqStep (Emptyᵣ x) eq = eq
   cumulEqStep (Unitᵣ x) eq = eq
   cumulEqStep (ne x) (ne₌ M D′ neM K≡M) = ne₌ M D′ neM K≡M
-  cumulEqStep (Bᵣ W x) (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) = B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]
+  cumulEqStep (Bᵣ W x) (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) = B₌ F′ G′ D′ A≡B {!!} {!!}
   cumulEqStep (Idᵣ x) (Id₌ Ty′ lhs′ rhs′ ⇒*Id′ Ty≡Ty′ lhs≡lhs′ rhs≡rhs′ lhs≡rhs→lhs′≡rhs′ lhs′≡rhs′→lhs≡rhs) =
     Id₌ Ty′ lhs′ rhs′ ⇒*Id′ (cumulEq ≤′-refl {!!} Ty≡Ty′) (cumulTermEq ≤′-refl {!!} lhs≡lhs′)
     (cumulTermEq ≤′-refl {!!} rhs≡rhs′) (λ x1 →  cumulEqStep {!!} (lhs≡rhs→lhs′≡rhs′ {!!})) λ x1 → cumulEqStep {!!} (lhs′≡rhs′→lhs≡rhs {!!})
