@@ -52,8 +52,16 @@ opaque mutual
   cumulStep (Unitᵣ x) =  Unitᵣ x
   cumulStep (ne′ K D neK K≡K) = ne′ K D neK K≡K
   cumulStep (Bᵣ′ W F G D ⊢F ⊢G A≡A [F] [G] G-ext ok) =
-    (Bᵣ′ W F G D ⊢F ⊢G A≡A (λ x x₁ → cumulStep ([F] x x₁)) (λ [ρ] ⊢Δ x → cumulStep ([G]  [ρ] ⊢Δ
-    (irrelevanceTerm (cumulStep ([F] [ρ] ⊢Δ)) ([F] [ρ] ⊢Δ) x)) ) (λ [ρ] ⊢Δ [a] [b] x → cumulEqStep ([G] [ρ] ⊢Δ {![a]!}) (G-ext [ρ] ⊢Δ {!!} {!!} {!!})) ok)
+    (Bᵣ′ W F G D ⊢F ⊢G A≡A (λ x x₁ → cumulStep ([F] x x₁))
+    (λ [ρ] ⊢Δ x → cumulStep ([G]  [ρ] ⊢Δ
+      (irrelevanceTerm (cumulStep ([F] [ρ] ⊢Δ)) ([F] [ρ] ⊢Δ) x)))
+    (λ [ρ] ⊢Δ [a] [b] x →
+      cumulEq ≤′-refl ([G] [ρ] ⊢Δ (irrelevanceTerm (cumulStep ([F] [ρ] ⊢Δ)) ([F] [ρ] ⊢Δ) [a]))
+      (G-ext [ρ] ⊢Δ
+        (irrelevanceTerm (cumulStep ([F] [ρ] ⊢Δ)) ([F] [ρ] ⊢Δ) [a])
+        (irrelevanceTerm (cumulStep ([F] [ρ] ⊢Δ)) ([F] [ρ] ⊢Δ) [b])
+        (irrelevanceEqTerm (cumulStep ([F] [ρ] ⊢Δ)) ([F] [ρ] ⊢Δ) x)))
+    ok)
   cumulStep (Idᵣ (Idᵣ Ty lhs rhs ⇒*Id ⊩Ty ⊩lhs ⊩rhs)) =  Idᵣ
           (Idᵣ Ty lhs rhs ⇒*Id (cumul ≤′-refl ⊩Ty) (cumulTerm ≤′-refl  ⊩Ty ⊩lhs) (cumulTerm ≤′-refl  ⊩Ty ⊩rhs))
   cumulStep (emb l< [A]) = emb (≤′-step l<) [A]
@@ -68,39 +76,11 @@ opaque mutual
     (⊩A : Γ ⊩⟨ l ⟩ A) →
     Γ ⊩⟨ l ⟩ A ≡ B / ⊩A →
     Γ ⊩⟨ l′ ⟩ A ≡ B / (cumul l< ⊩A)
-  cumulEq ≤′-refl ⊩A eq = cumulEqStep ⊩A eq
-  cumulEq (≤′-step l<) ⊩A eq = cumulEqStep (cumul l< ⊩A) (cumulEq l< ⊩A eq)
-
-  cumulEqStep : ∀ {l A B} → (⊩A : Γ ⊩⟨ l ⟩ A) →
-                  Γ ⊩⟨ l ⟩ A ≡ B / ⊩A →
-                  Γ ⊩⟨ 1+ l ⟩ A ≡ B / cumulStep ⊩A
-  cumulEqStep (Uᵣ x) eq = eq
-  cumulEqStep (ℕᵣ x) eq = eq
-  cumulEqStep (Emptyᵣ x) eq = eq
-  cumulEqStep (Unitᵣ x) eq = eq
-  cumulEqStep (ne x) (ne₌ M D′ neM K≡M) = ne₌ M D′ neM K≡M
-  cumulEqStep (Bᵣ W x) (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) = B₌ F′ G′ D′ A≡B {!!} {!!}
-  cumulEqStep (Idᵣ x) (Id₌ Ty′ lhs′ rhs′ ⇒*Id′ Ty≡Ty′ lhs≡lhs′ rhs≡rhs′ lhs≡rhs→lhs′≡rhs′ lhs′≡rhs′→lhs≡rhs) =
-    Id₌ Ty′ lhs′ rhs′ ⇒*Id′ (cumulEq ≤′-refl {!!} Ty≡Ty′) (cumulTermEq ≤′-refl {!!} lhs≡lhs′)
-    (cumulTermEq ≤′-refl {!!} rhs≡rhs′) (λ x1 →  cumulEqStep {!!} (lhs≡rhs→lhs′≡rhs′ {!!})) λ x1 → cumulEqStep {!!} (lhs′≡rhs′→lhs≡rhs {!!})
-  cumulEqStep (emb l< [A]) eq = eq
+  cumulEq l< ⊩A eq = irrelevanceEq  ⊩A (cumul l< ⊩A) eq
 
   cumulTermEq :
       ∀ {l l′ A t u} → (l< : l < l′) →
       (⊩A : Γ ⊩⟨ l ⟩ A) →
       Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A →
       Γ ⊩⟨ l′ ⟩ t ≡ u ∷ A / cumul l< ⊩A
-  cumulTermEq ≤′-refl ⊩A teq = cumulTermEqStep ⊩A teq
-  cumulTermEq (≤′-step l<) ⊩A teq = cumulTermEqStep (cumul l< ⊩A) (cumulTermEq l< ⊩A teq)
-
-  cumulTermEqStep : ∀ {l A t u} → (⊩A : Γ ⊩⟨ l ⟩ A) →
-                  Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A →
-                  Γ ⊩⟨ 1+ l ⟩ t ≡ u ∷ A / cumulStep ⊩A
-  cumulTermEqStep (Uᵣ x) (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) = Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]
-  cumulTermEqStep (ℕᵣ x) teq = teq
-  cumulTermEqStep (Emptyᵣ x) teq = teq
-  cumulTermEqStep (Unitᵣ x) teq = teq
-  cumulTermEqStep (ne x) (neₜ₌ k m d d′ nf) = neₜ₌ k m d d′ nf
-  cumulTermEqStep (Bᵣ W x) teq = {!!}
-  cumulTermEqStep (Idᵣ x) teq = {!!}
-  cumulTermEqStep (emb l< [A]) teq = teq
+  cumulTermEq l< ⊩A teq = irrelevanceEqTerm ⊩A (cumul l< ⊩A) teq
