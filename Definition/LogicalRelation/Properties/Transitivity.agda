@@ -147,7 +147,7 @@ transEq′ PE.refl PE.refl [A] [B] [C] A≡B B≡C =
   transEq [A] [B] [C] A≡B B≡C
 
 -- Transitivty of term equality.
-transEqTerm : ∀ {Γ : Con Term n} {l A t u v}
+transEqTerm : {n : Nat} → ∀ {Γ : Con Term n} {l A t u v}
               ([A] : Γ ⊩⟨ l ⟩ A)
             → Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
             → Γ ⊩⟨ l ⟩ u ≡ v ∷ A / [A]
@@ -256,20 +256,21 @@ transEqT (emb-l- (≤′-step l<) (step-emb _ _ embV) AB) A≡B B≡C = transEqT
 transEqT (emb--l ≤′-refl (refl-emb _) AB) A≡B B≡C = transEqT AB A≡B B≡C
 transEqT (emb--l (≤′-step l<) (step-emb _ _ embV) AB) A≡B B≡C = transEqT (emb--l l< embV AB) A≡B B≡C
 
+transEqTerm  {Γ = Γ} {l = 1+ l} {A = A'} {t = t} {u = u} {v = v} (Uᵣ′ l′ (≤′-step s) D)
+            (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u])
+            (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁) = lemma {D = D} (transEqTerm {n = _} {Γ = _} {l = _} {A = _} {t = _} {u = _} {v = _} (Uᵣ′ l′ s D) (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u]) (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁))
+            -- lemma {D = D} (transEqTerm {l = l} (Uᵣ′ l′ s D)
+            --   (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u]) (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁))
+            where
+              lemma : {n' : Nat} {Γ : Con Term n'}{t v A : Term n'} {l′ n : TypeLevel} {D : Γ ⊢ A :⇒*: U l′} {s : l′ < n} →
+                Γ ⊩⟨ n ⟩ t ≡ v ∷ A / Uᵣ′ l′ s D → Γ ⊩⟨ Nat.suc n ⟩ t ≡ v ∷ A / Uᵣ′ l′ (≤′-step s) D
+              lemma (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) = Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]
 transEqTerm (Uᵣ′ l′ ≤′-refl D)
             (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u])
             (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁) =
                 case whrDet*Term (redₜ d₁ , typeWhnf typeA₁) (redₜ d′ , typeWhnf typeB) of λ where
                 PE.refl →
                     Uₜ₌ A B₁ d  d₁′ typeA typeB₁ (≅ₜ-trans t≡u t≡u₁) [t] [u]₁ (transEq [t] [t]₁ [u]₁ [t≡u] [t≡u]₁)
-transEqTerm (Uᵣ′ l′ (≤′-step s) D)
-            (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u])
-            (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁) = lemma {D = D} (transEqTerm (Uᵣ′ l′ s D)
-              (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u]) (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁))
-            where
-              lemma : {t v A : Term ℓ} {l′ n : TypeLevel} {D : Γ ⊢ A :⇒*: U l′} {s : l′ < n} →
-                Γ ⊩⟨ n ⟩ t ≡ v ∷ A / Uᵣ′ l′ s D → Γ ⊩⟨ Nat.suc n ⟩ t ≡ v ∷ A / Uᵣ′ l′ (≤′-step s) D
-              lemma (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) = Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]
 transEqTerm (ℕᵣ D) [t≡u] [u≡v] = transEqTermℕ [t≡u] [u≡v]
 transEqTerm (Emptyᵣ D) [t≡u] [u≡v] = transEqTermEmpty [t≡u] [u≡v]
 transEqTerm (Unitᵣ D) [t≡u] [u≡v] = transEqTermUnit [t≡u] [u≡v]
@@ -363,48 +364,48 @@ transEqTerm
                   (λ (x : Term n) → Γ ⊢ x ~ _ ∷ Σʷ p′ , q ▷ F ▹ G)
                   p₁≡r p₁~r₁)
   in  Σₜ₌ p r₁ d d₁′ (ne x) (ne x₃) p≅r₁ [t] [u]₁ p~r₁
--- transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
---             (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u] prop)
---             (Σₜ₌ p₁ r₁ d₁ d₁′ (ne x) (ne x₁) p≅r₁ [t]₁ [u]₁ prop₁) =
---   ⊥-elim (prod≢ne x (whrDet*Term (redₜ d′ , prodₙ) (redₜ d₁ , ne x)))
--- transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
---             (Σₜ₌ p r d d′ (ne x) (ne x₁) p≅r [t] [u] prop)
---             (Σₜ₌ p₁ r₁ d₁ d₁′ prodₙ prodₙ p≅r₁ [t]₁ [u]₁ prop₁) =
---   ⊥-elim (prod≢ne x₁ (whrDet*Term (redₜ d₁ , prodₙ) (redₜ d′ , ne x₁)))
--- transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
---             (Σₜ₌ p r d d′ prodₙ (ne x) p≅r [t] [u] (lift ()))
---             (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ prop₁)
--- transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
---             (Σₜ₌ p r d d′ (ne x) prodₙ p≅r [t] [u] (lift ()))
---             (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ prop₁)
--- transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
---             (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop)
---             (Σₜ₌ p₁ r₁ d₁ d₁′ prodₙ (ne x) p≅r₁ [t]₁ [u]₁ (lift ()))
--- transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
---             (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop)
---             (Σₜ₌ p₁ r₁ d₁ d₁′ (ne x) prodₙ p≅r₁ [t]₁ [u]₁ (lift ()))
--- transEqTerm
---   (Idᵣ ⊩A)
---   t≡u@(_ , _ , _ , u⇒*u′ , _ , u′-id , _)
---   u≡v@(_ , _ , u⇒*u″ , _ , u″-id , _) =
---   case whrDet*Term
---          (redₜ u⇒*u′ , identityWhnf u′-id)
---          (redₜ u⇒*u″ , identityWhnf u″-id) of λ {
---     PE.refl →
---   let ⊩t , _      = ⊩Id≡∷⁻¹ ⊩A t≡u
---       _  , ⊩v , _ = ⊩Id≡∷⁻¹ ⊩A u≡v
---   in
---   ⊩Id≡∷ ⊩t ⊩v
---     (case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
---        (ne _ u′-n t′~u′) → case ⊩Id≡∷-view-inhabited ⊩A u≡v of λ where
---          (ne _ _ u′~v′) → ~-trans t′~u′ u′~v′
---          (rfl₌ _)       →
---            ⊥-elim $ rfl≢ne u′-n $
---            whrDet*Term (redₜ u⇒*u″ , rflₙ) (redₜ u⇒*u′ , ne u′-n)
---        (rfl₌ _) → case ⊩Id≡∷-view-inhabited ⊩A u≡v of λ where
---          (rfl₌ _)      → _
---          (ne u″-n _ _) →
---            ⊥-elim $ rfl≢ne u″-n $
---            whrDet*Term (redₜ u⇒*u′ , rflₙ) (redₜ u⇒*u″ , ne u″-n)) }
--- transEqTerm (emb ≤′-refl x) t≡u u≡v = transEqTerm x t≡u u≡v
--- transEqTerm (emb (≤′-step l<) x) t≡u u≡v = transEqTerm (emb l< x) t≡u u≡v
+transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
+            (Σₜ₌ p r d d′ prodₙ prodₙ p≅r [t] [u] prop)
+            (Σₜ₌ p₁ r₁ d₁ d₁′ (ne x) (ne x₁) p≅r₁ [t]₁ [u]₁ prop₁) =
+  ⊥-elim (prod≢ne x (whrDet*Term (redₜ d′ , prodₙ) (redₜ d₁ , ne x)))
+transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
+            (Σₜ₌ p r d d′ (ne x) (ne x₁) p≅r [t] [u] prop)
+            (Σₜ₌ p₁ r₁ d₁ d₁′ prodₙ prodₙ p≅r₁ [t]₁ [u]₁ prop₁) =
+  ⊥-elim (prod≢ne x₁ (whrDet*Term (redₜ d₁ , prodₙ) (redₜ d′ , ne x₁)))
+transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
+            (Σₜ₌ p r d d′ prodₙ (ne x) p≅r [t] [u] (lift ()))
+            (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ prop₁)
+transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
+            (Σₜ₌ p r d d′ (ne x) prodₙ p≅r [t] [u] (lift ()))
+            (Σₜ₌ p₁ r₁ d₁ d₁′ pProd₁ rProd₁ p≅r₁ [t]₁ [u]₁ prop₁)
+transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
+            (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop)
+            (Σₜ₌ p₁ r₁ d₁ d₁′ prodₙ (ne x) p≅r₁ [t]₁ [u]₁ (lift ()))
+transEqTerm (Bᵣ′ BΣʷ _ _ _ _ _ _ _ _ _ _)
+            (Σₜ₌ p r d d′ pProd rProd p≅r [t] [u] prop)
+            (Σₜ₌ p₁ r₁ d₁ d₁′ (ne x) prodₙ p≅r₁ [t]₁ [u]₁ (lift ()))
+transEqTerm
+  (Idᵣ ⊩A)
+  t≡u@(_ , _ , _ , u⇒*u′ , _ , u′-id , _)
+  u≡v@(_ , _ , u⇒*u″ , _ , u″-id , _) =
+  case whrDet*Term
+         (redₜ u⇒*u′ , identityWhnf u′-id)
+         (redₜ u⇒*u″ , identityWhnf u″-id) of λ {
+    PE.refl →
+  let ⊩t , _      = ⊩Id≡∷⁻¹ ⊩A t≡u
+      _  , ⊩v , _ = ⊩Id≡∷⁻¹ ⊩A u≡v
+  in
+  ⊩Id≡∷ ⊩t ⊩v
+    (case ⊩Id≡∷-view-inhabited ⊩A t≡u of λ where
+       (ne _ u′-n t′~u′) → case ⊩Id≡∷-view-inhabited ⊩A u≡v of λ where
+         (ne _ _ u′~v′) → ~-trans t′~u′ u′~v′
+         (rfl₌ _)       →
+           ⊥-elim $ rfl≢ne u′-n $
+           whrDet*Term (redₜ u⇒*u″ , rflₙ) (redₜ u⇒*u′ , ne u′-n)
+       (rfl₌ _) → case ⊩Id≡∷-view-inhabited ⊩A u≡v of λ where
+         (rfl₌ _)      → _
+         (ne u″-n _ _) →
+           ⊥-elim $ rfl≢ne u″-n $
+           whrDet*Term (redₜ u⇒*u′ , rflₙ) (redₜ u⇒*u″ , ne u″-n)) }
+transEqTerm (emb ≤′-refl x) t≡u u≡v = transEqTerm x t≡u u≡v
+transEqTerm (emb (≤′-step l<) x) t≡u u≡v = transEqTerm (emb l< x) t≡u u≡v
