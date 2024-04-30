@@ -23,7 +23,6 @@ open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties.Conversion R
-open import Definition.LogicalRelation.Properties.Cumulativity R
 open import Definition.LogicalRelation.Properties.Symmetry R
 
 open import Tools.Empty
