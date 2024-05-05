@@ -209,9 +209,9 @@ mutual
         n≡n′ = ~-to-≅ₜ n~n′₁
         nU = univ (conv n A≡U)
         nU′ = univ (conv n′ A≡U)
-        wfn = neu neN nU {!!}
+        wfn = neu neN nU (~-to-≅ (~-trans n~n′₁ (~-sym n~n′₁)))
     in Uₜ₌ _ _ (idRedTerm:*: (conv n A≡U)) (idRedTerm:*: (conv n′ A≡U)) (ne neN) (ne neN′) n≡n′
-      wfn (neu neN′ nU′ {!!})
+      wfn (neu neN′ nU′ (~-to-≅ (~-trans (~-sym n~n′₁) n~n′₁)))
       (neuEq wfn neN neN′ nU nU′ (≅-univ n≡n′))
   neuEqTerm (Uᵣ′ l (≤′-step l<) D) neN neN′ n n′ n~n′ =
     lemma D (neuEqTerm (Uᵣ′ l l< D) neN neN′ n n′ n~n′)

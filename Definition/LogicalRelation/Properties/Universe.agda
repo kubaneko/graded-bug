@@ -33,31 +33,29 @@ private
 
 -- Helper function for reducible terms of type U for specific type derivations.
 univEq′ :
-  ∀ {l l′ t A} ([U] : Γ ⊩⟨ l ⟩U A) → Γ ⊩⟨ l ⟩ t ∷ A / U-intr [U] →
-  ∃ λ l″ → l″ ≤ l′ → Γ ⊩⟨ l″ ⟩ A
-univEq′ (noemb (Uᵣ l l< ⊢Γ)) (Uₜ A₁ d typeA A≡A [A]) = l , (λ x → Uᵣ′ {!!} {!!} {!!})
-univEq′ (emb ≤′-refl x) [A] = univEq′ x [A]
-univEq′ (emb (≤′-step l<) x) [A] = univEq′ (emb l< x) [A]
+  ∀ {l l′ A} ([U] : Γ ⊩⟨ l ⟩U U l′) → Γ ⊩⟨ l ⟩ A ∷ U l′ / U-intr [U] → Γ ⊩⟨ l′ ⟩ A
+univEq′ (noemb (Uᵣ l′ l< D)) (Uₜ A d typeA A≡A [t]) = {!!}
+univEq′ (emb ≤′-refl [U]) [A] = univEq′ [U] [A]
+univEq′ (emb (≤′-step x) [U]) [A] = univEq′ (emb x [U]) [A]
 
 -- Reducible terms of type U are reducible types.
 univEq :
-  ∀ {l t A} ([U] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ t ∷ A / [U] →
-  ∃ λ l″ → l″ ≤ l′ → Γ ⊩⟨ l″ ⟩ t
-univEq [U] [A] = univEq′ {!U-elim ? [U]!} {!irrelevanceTerm [U] (U-intr (U-elim [U])) [A]!}
-
--- univEq′ (U-elim [U])
---                          (irrelevanceTerm [U] (U-intr (U-elim [U])) [A])
+  ∀ {l l′ t A} ([U] : Γ ⊩⟨ l ⟩ U l′) → Γ ⊩⟨ l ⟩ t ∷ U l′ / [U] → Γ ⊩⟨ l′ ⟩ t
+univEq [U] [A] =
+  let Uel = U-elim (id (escape [U])) [U]
+  in univEq′ Uel (irrelevanceTerm [U] (U-intr Uel) [A])
 
 -- Helper function for reducible term equality of type U for specific type derivations.
 univEqEq′ : ∀ {l l′ A B} ([U] : Γ ⊩⟨ l ⟩U (U l′)) ([A] : Γ ⊩⟨ l′ ⟩ A)
          → Γ ⊩⟨ l ⟩ A ≡ B ∷ (U l′) / U-intr [U]
          → Γ ⊩⟨ l′ ⟩ A ≡ B / [A]
-univEqEq′ (noemb (Uᵣ l′ l< ⇒*U)) [A] (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =  irrelevanceEq {![t]!} [A] [t≡u]
-univEqEq′ (emb x [U]) [t] t≡v = univEqEq′ {!x!} {!!} {!!}
--- univEqEq′ (noemb (Uᵣ 0 l< ⊢Γ)) [t]
---           (Uₜ₌ A₁ B₁ d d′ typeA typeB A≡B [t] [u] [t≡u]) =
---   irrelevanceEq [t] [A] [t≡u]
--- univEqEq′ (emb 0<1 x) [A] [A≡B] = univEqEq′ x [A] [A≡B]
+univEqEq′ (noemb (Uᵣ l′ ≤′-refl ⇒*U)) [A] (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
+  irrelevanceEq (helperToLogRel ≤′-refl [t]) [A] [t≡u]
+univEqEq′ (noemb (Uᵣ l′ (≤′-step l<) ⇒*U)) [A] (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u]) =
+  univEqEq′ (noemb (Uᵣ l′ l< ⇒*U)) [A] (Uₜ₌ A B d d′ typeA typeB A≡B [t] [u] [t≡u])
+                     --
+univEqEq′ (emb ≤′-refl [U]) [A] A≡B = univEqEq′ [U] [A] A≡B
+univEqEq′ (emb (≤′-step x) [U]) [A] A≡B = univEqEq′ (emb x [U]) [A] A≡B
 
 -- Reducible term equality of type U is reducible type equality.
 univEqEq : ∀ {l l′ t v} ([U] : Γ ⊩⟨ l ⟩ (U l′)) ([t] : Γ ⊩⟨ l′ ⟩ t)
