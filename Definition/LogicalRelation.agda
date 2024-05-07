@@ -104,6 +104,7 @@ module LogRel (l : TypeLevel) (rec : ∀ {l′} → l′ <′ l → LogRelKit) w
         D : Γ ⊢ A :⇒*: ⟦ W ⟧ F ▹ G
         ⊢F : Γ ⊢ F
         ⊢G : Γ ∙ F ⊢ G
+        A≡A : Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ F ▹ G
         [F] : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} → ρ ∷ Δ ⊇ Γ → ⊢ Δ → Δ ⊩ₗ U.wk ρ F
         [G] : ∀ {m} {ρ : Wk m ℓ} {Δ : Con Term m} {a : Term m}
             → ([ρ] : ρ ∷ Δ ⊇ Γ) (⊢Δ : ⊢ Δ)
