@@ -88,13 +88,6 @@ mutual
               → x ∷ A ∈ Γ
               → Γ ⊢ var x ∷ A
 
-    lamⱼ      : Γ     ⊢ F
-              → Γ ∙ F ⊢ t ∷ G
-              → Π-allowed p q
-              → Γ     ⊢ lam p t ∷ Π p , q ▷ F ▹ G
-    _∘ⱼ_      : Γ ⊢ t ∷ Π p , q ▷ F ▹ G
-              → Γ ⊢ u ∷ F
-              → Γ ⊢ t ∘⟨ p ⟩ u ∷ G [ u ]₀
 
     prodⱼ     : Γ ⊢ F
               → Γ ∙ F ⊢ G
@@ -206,23 +199,6 @@ mutual
                   → ΠΣ-allowed b p q
                   → Γ     ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡
                             ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U (l₁ ⊔ l₂)
-    app-cong      : ∀ {b}
-                  → Γ ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
-                  → Γ ⊢ a ≡ b ∷ F
-                  → Γ ⊢ f ∘⟨ p ⟩ a ≡ g ∘⟨ p ⟩ b ∷ G [ a ]₀
-    β-red         : Γ     ⊢ F
-                  → Γ ∙ F ⊢ G
-                  → Γ ∙ F ⊢ t ∷ G
-                  → Γ     ⊢ a ∷ F
-                  → p PE.≡ p′
-                  → -- Note that q can be chosen arbitrarily.
-                    Π-allowed p q
-                  → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ≡ t [ a ]₀ ∷ G [ a ]₀
-    η-eq          : Γ     ⊢ F
-                  → Γ     ⊢ f ∷ Π p , q ▷ F ▹ G
-                  → Γ     ⊢ g ∷ Π p , q ▷ F ▹ G
-                  → Γ ∙ F ⊢ wk1 f ∘⟨ p ⟩ var x0 ≡ wk1 g ∘⟨ p ⟩ var x0 ∷ G
-                  → Γ     ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
     fst-cong      : Γ ⊢ F
                   → Γ ∙ F ⊢ G
                   → Γ ⊢ t ≡ t′ ∷ Σˢ p , q ▷ F ▹ G
@@ -371,17 +347,6 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
   conv           : Γ ⊢ t ⇒ u ∷ A
                  → Γ ⊢ A ≡ B
                  → Γ ⊢ t ⇒ u ∷ B
-  app-subst      : Γ ⊢ t ⇒ u ∷ Π p , q ▷ F ▹ G
-                 → Γ ⊢ a ∷ F
-                 → Γ ⊢ t ∘⟨ p ⟩ a ⇒ u ∘⟨ p ⟩ a ∷ G [ a ]₀
-  β-red          : Γ     ⊢ F
-                 → Γ ∙ F ⊢ G
-                 → Γ ∙ F ⊢ t ∷ G
-                 → Γ     ⊢ a ∷ F
-                 → p PE.≡ p′
-                 → -- Note that q can be chosen arbitrarily.
-                   Π-allowed p q
-                 → Γ     ⊢ lam p t ∘⟨ p′ ⟩ a ⇒ t [ a ]₀ ∷ G [ a ]₀
   fst-subst      : Γ ⊢ F
                  → Γ ∙ F ⊢ G
                  → Γ ⊢ t ⇒ u ∷ Σˢ p , q ▷ F ▹ G
@@ -582,7 +547,6 @@ data _⊢ˢ_≡_∷_ {k} (Δ : Con Term k) :
      → Γ ∙ F ⊢ G
      → BindingType-allowed W
      → Γ     ⊢ ⟦ W ⟧ F ▹ G
-⟦ BΠ _ _   ⟧ⱼ = ΠΣⱼ
 ⟦ BΣ _ _ _ ⟧ⱼ = ΠΣⱼ
 
 ⟦_⟧ⱼᵤ : (W : BindingType) → ∀ {F G}
@@ -590,7 +554,6 @@ data _⊢ˢ_≡_∷_ {k} (Δ : Con Term k) :
      → Γ ∙ F ⊢ G ∷ U l₂
      → BindingType-allowed W
      → Γ     ⊢ ⟦ W ⟧ F ▹ G ∷ U (l₁ ⊔ l₂)
-⟦ BΠ _ _   ⟧ⱼᵤ = ΠΣⱼ
 ⟦ BΣ _ _ _ ⟧ⱼᵤ = ΠΣⱼ
 
 -- A context Γ is consistent if the empty type is not inhabited in Γ.

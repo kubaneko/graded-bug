@@ -27,7 +27,6 @@ private
     ρ : Wk _ _
 
 infix 30 ΠΣ⟨_⟩_,_▷_▹_
-infix 30 Π_,_▷_▹_
 infix 30 Σ_,_▷_▹_
 infix 30 Σˢ_,_▷_▹_
 infix 30 Σʷ_,_▷_▹_
@@ -111,7 +110,6 @@ pattern Unitʷ = gen (Unitkind 𝕨) []
 pattern Unitˢ = gen (Unitkind 𝕤) []
 
 pattern ΠΣ⟨_⟩_,_▷_▹_ b p q F G = gen (Binderkind b p q) (F ∷ G ∷ [])
-pattern Π_,_▷_▹_ p q F G = gen (Binderkind BMΠ p q) (F ∷ G ∷ [])
 pattern Σˢ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ 𝕤) p q) (F ∷ G ∷ [])
 pattern Σʷ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ 𝕨) p q) (F ∷ G ∷ [])
 pattern Σ_,_▷_▹_ p q F G = gen (Binderkind (BMΣ _) p q) (F ∷ G ∷ [])
@@ -154,15 +152,12 @@ pattern []-congˢ A t u v = gen (Boxcongkind 𝕤) (A ∷ t ∷ u ∷ v ∷ [])
 data BindingType : Set a where
   BM : BinderMode → (p q : M) → BindingType
 
-pattern BΠ p q = BM BMΠ p q
-pattern BΠ! = BΠ _ _
 pattern BΣ s p q = BM (BMΣ s) p q
 pattern BΣ! = BΣ _ _ _
 pattern BΣʷ = BΣ 𝕨 _ _
 pattern BΣˢ = BΣ 𝕤 _ _
 
 ⟦_⟧_▹_ : BindingType → Term n → Term (1+ n) → Term n
-⟦ BΠ p q   ⟧ F ▹ G = Π p , q ▷ F ▹ G
 ⟦ BΣ m p q ⟧ F ▹ G = Σ⟨ m ⟩ p , q ▷ F ▹ G
 
 -- Injectivity of term constructors w.r.t. propositional equality.
@@ -171,13 +166,8 @@ pattern BΣˢ = BΣ 𝕤 _ _
 
 B-PE-injectivity : ∀ W W' → ⟦ W ⟧ F ▹ G PE.≡ ⟦ W' ⟧ H ▹ E
                  → F PE.≡ H × G PE.≡ E × W PE.≡ W'
-B-PE-injectivity (BΠ p q) (BΠ .p .q) PE.refl =
-  PE.refl , PE.refl , PE.refl
 B-PE-injectivity (BΣ p q m) (BΣ .p .q .m) PE.refl =
   PE.refl , PE.refl , PE.refl
-
-BΠ-PE-injectivity : ∀ {p p′ q q′} → BΠ p q PE.≡ BΠ p′ q′ → p PE.≡ p′ × q PE.≡ q′
-BΠ-PE-injectivity PE.refl = PE.refl , PE.refl
 
 BΣ-PE-injectivity :
   ∀ {p p′ q q′ m m′} →
@@ -248,68 +238,17 @@ data Whnf {n : Nat} : Term n → Set a where
 U≢ne : Neutral A → (U l) PE.≢ A
 U≢ne () PE.refl
 
-ℕ≢ne : Neutral A → ℕ PE.≢ A
-ℕ≢ne () PE.refl
-
-Empty≢ne : Neutral A → Empty PE.≢ A
-Empty≢ne () PE.refl
-
-Unit≢ne : Neutral A → Unit s PE.≢ A
-Unit≢ne () PE.refl
-
 B≢ne : ∀ W → Neutral A → ⟦ W ⟧ F ▹ G PE.≢ A
-B≢ne (BΠ p q) () PE.refl
 B≢ne (BΣ m p q) () PE.refl
 
 ΠΣ≢ne : ∀ b → Neutral A → ΠΣ⟨ b ⟩ p , q ▷ F ▹ G PE.≢ A
-ΠΣ≢ne BMΠ () PE.refl
 ΠΣ≢ne (BMΣ s) () PE.refl
 
-Id≢ne : Neutral B → Id A t u PE.≢ B
-Id≢ne () PE.refl
-
 U≢B : ∀ W → (U l) PE.≢ ⟦ W ⟧ F ▹ G
-U≢B (BΠ p q) ()
 U≢B (BΣ m p q) ()
 
 U≢ΠΣ : ∀ b → (U l) PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
-U≢ΠΣ BMΠ ()
 U≢ΠΣ (BMΣ s) ()
-
-ℕ≢B : ∀ W → ℕ PE.≢ ⟦ W ⟧ F ▹ G
-ℕ≢B (BΠ p q) ()
-ℕ≢B (BΣ m p q) ()
-
-ℕ≢ΠΣ : ∀ b → ℕ PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
-ℕ≢ΠΣ BMΠ ()
-ℕ≢ΠΣ (BMΣ s) ()
-
-Empty≢B : ∀ W → Empty PE.≢ ⟦ W ⟧ F ▹ G
-Empty≢B (BΠ p q) ()
-Empty≢B (BΣ m p q) ()
-
-Empty≢ΠΣ : ∀ b → Empty PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
-Empty≢ΠΣ BMΠ ()
-Empty≢ΠΣ (BMΣ _) ()
-
-Unit≢B : ∀ W → Unit s PE.≢ ⟦ W ⟧ F ▹ G
-Unit≢B (BΠ p q) ()
-Unit≢B (BΣ m p q) ()
-
-Unit≢ΠΣ : ∀ b → Unit s PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
-Unit≢ΠΣ BMΠ ()
-Unit≢ΠΣ (BMΣ _) ()
-
-Id≢⟦⟧▷ : ∀ W → Id A t u PE.≢ ⟦ W ⟧ F ▹ G
-Id≢⟦⟧▷ (BΠ _ _)   ()
-Id≢⟦⟧▷ (BΣ _ _ _) ()
-
-Id≢ΠΣ : ∀ b → Id A t u PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
-Id≢ΠΣ BMΠ     ()
-Id≢ΠΣ (BMΣ _) ()
-
-Π≢Σ : ∀ {m} → Π p₁ , q₁ ▷ F ▹ G PE.≢ Σ⟨ m ⟩ p₂ , q₂ ▷ H ▹ E
-Π≢Σ ()
 
 Σˢ≢Σʷ : Σˢ p₁ , q₁ ▷ F ▹ G PE.≢ Σʷ p₂ , q₂ ▷ H ▹ E
 Σˢ≢Σʷ ()
@@ -351,7 +290,6 @@ data Type {n : Nat} : Term n → Set a where
   ne     : Neutral t → Type t
 
 ⟦_⟧-type : ∀ (W : BindingType) → Type (⟦ W ⟧ F ▹ G)
-⟦ BΠ p q ⟧-type = ΠΣₙ
 ⟦ BΣ m p q ⟧-type = ΠΣₙ
 
 -- A whnf of type Π A ▹ B is either lam t or neutral.
@@ -421,7 +359,6 @@ identityWhnf rflₙ   = rflₙ
 identityWhnf (ne n) = ne n
 
 ⟦_⟧ₙ : (W : BindingType) → Whnf (⟦ W ⟧ F ▹ G)
-⟦_⟧ₙ (BΠ p q) = ΠΣₙ
 ⟦_⟧ₙ (BΣ m p q) = ΠΣₙ
 
 -- Fully normalized natural numbers
@@ -726,7 +663,6 @@ t [ s ]↑² = t [ consSubst (wk1Subst (wk1Subst idSubst)) s ]
 
 B-subst : (σ : Subst m n) (W : BindingType) (F : Term n) (G : Term (1+ n))
         → (⟦ W ⟧ F ▹ G) [ σ ] PE.≡ ⟦ W ⟧ F [ σ ] ▹ (G [ liftSubst σ ])
-B-subst σ (BΠ p q) F G = PE.refl
 B-subst σ (BΣ m p q) F G = PE.refl
 
 ------------------------------------------------------------------------

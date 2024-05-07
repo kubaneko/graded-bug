@@ -662,13 +662,11 @@ wk2-tail-B′ {n} {σ = σ} W F G = begin
 wk2-tail-B : ∀ (W : BindingType) (F : Term n) (G : Term (1+ n))
            → ⟦ W ⟧ wk1 (wk1 F) [ σ ] ▹ (wk (lift (step (step id))) G [ liftSubst σ ])
            ≡ ⟦ W ⟧ F ▹ G [ tail (tail σ) ]
-wk2-tail-B (BΠ p q)   F G = wk2-tail-B′ (BΠ p q)   F G
 wk2-tail-B (BΣ m p q) F G = wk2-tail-B′ (BΣ m p q) F G
 
 wk2-B : ∀ (W : BindingType) (F : Term n) (G : Term (1+ n))
       → ⟦ W ⟧ wk1 (wk1 F) ▹ wk (lift (step (step id))) G
       ≡ wk1 (wk1 (⟦ W ⟧ F ▹ G))
-wk2-B (BΠ p q) F G = cong (Π p , q ▷ _ ▹_) (sym (wk-comp _ _ G))
 wk2-B (BΣ s p q) F G = cong (Σ⟨ s ⟩ p , q ▷ _ ▹_) (sym (wk-comp _ _ G))
 
 wk1-sgSubst : ∀ (t : Term n) t' → (wk1 t) [ t' ]₀ ≡ t

@@ -166,37 +166,6 @@ opaque
 
 opaque
 
-  -- If two functions are equal, then they are pointwise equal.
-
-  pointwise-equality :
-    M → M → Term n → Term (1+ n) → Term n → Term n → Term n → Term n →
-    Term n
-  pointwise-equality p q A B t u v w =
-    cong (Π p , q ▷ A ▹ B) t u (B [ w ]₀) (var x0 ∘⟨ p ⟩ wk1 w) v
-
-opaque
-  unfolding pointwise-equality
-
-  -- A substitution lemma for pointwise-equality.
-
-  pointwise-equality-[] :
-    pointwise-equality p q A B t u v w [ σ ] ≡
-    pointwise-equality p q (A [ σ ]) (B [ liftSubst σ ]) (t [ σ ])
-      (u [ σ ]) (v [ σ ]) (w [ σ ])
-  pointwise-equality-[] {p} {q} {A} {B} {t} {u} {v} {w} {σ} =
-    cong (Π p , q ▷ A ▹ B) t u (B [ w ]₀) (var x0 ∘⟨ p ⟩ wk1 w) v [ σ ]  ≡⟨ cong-[] ⟩
-
-    cong (Π p , q ▷ A [ σ ] ▹ (B [ liftSubst σ ])) (t [ σ ]) (u [ σ ])
-      (B [ w ]₀ [ σ ]) (var x0 ∘⟨ p ⟩ wk1 w [ liftSubst σ ]) (v [ σ ])   ≡⟨ cong₃ (cong _ _ _)
-                                                                              (singleSubstLift B _)
-                                                                              (PE.cong (_∘⟨_⟩_ _ _) $ wk1-liftSubst w)
-                                                                              refl ⟩
-    cong (Π p , q ▷ A [ σ ] ▹ (B [ liftSubst σ ])) (t [ σ ]) (u [ σ ])
-      (B [ liftSubst σ ] [ w [ σ ] ]₀) (var x0 ∘⟨ p ⟩ wk1 (w [ σ ]))
-      (v [ σ ])                                                          ∎
-
-opaque
-
   -- Uniqueness of identity proofs (UIP)
 
   uip : M → M → Term n → Term n → Term n → Term n → Term n → Term n

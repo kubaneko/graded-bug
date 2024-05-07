@@ -43,7 +43,6 @@ data Strength : Set where
 -- Π- or Σ-types.
 
 data BinderMode : Set where
-  BMΠ : BinderMode
   BMΣ : (s : Strength) → BinderMode
 
 ------------------------------------------------------------------------

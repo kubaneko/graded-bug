@@ -136,9 +136,6 @@ decStrength 𝕨 𝕨 = yes refl
 -- Decidability of equality for BinderMode.
 decBinderMode : Decidable (_≡_ {A = BinderMode})
 decBinderMode = λ where
-  BMΠ      BMΠ      → yes refl
-  BMΠ      (BMΣ _)  → no (λ ())
-  (BMΣ _)  BMΠ      → no (λ ())
   (BMΣ s₁) (BMΣ s₂) → case decStrength s₁ s₂ of λ where
     (yes refl) → yes refl
     (no s₁≢s₂)    → no λ where

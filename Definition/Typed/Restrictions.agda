@@ -43,11 +43,6 @@ record Type-restrictions : Set (lsuc a) where
   Unitʷ-allowed : Set a
   Unitʷ-allowed = Unit-allowed 𝕨
 
-  -- Restrictions imposed upon Π-types.
-
-  Π-allowed : M → M → Set a
-  Π-allowed = ΠΣ-allowed BMΠ
-
   -- Restrictions imposed upon Σ-types.
 
   Σ-allowed : Strength → M → M → Set a

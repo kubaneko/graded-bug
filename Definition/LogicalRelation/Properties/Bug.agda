@@ -16,7 +16,6 @@ module Definition.LogicalRelation.Properties.Bug
   where
 
 open import Definition.Untyped M hiding (_∷_)
-open import Definition.Typed R
 open import Definition.LogicalRelation R
 
 open import Tools.Nat hiding (_<_)
@@ -28,16 +27,16 @@ transEqTerm :  {n : Nat} → ∀ {Γ : Con Term n} {l A t u v}
             → Γ ⊩⟨ l ⟩ u ≡ v ∷ A / [A]
             → Γ ⊩⟨ l ⟩ t ≡ v ∷ A / [A]
 
-transEqTerm (Uᵣ′ l′ (≤′-step s) D)
-            (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u])
-            (Uₜ₌ A₁ B₁ d₁ d₁′ typeA₁ typeB₁ t≡u₁ [t]₁ [u]₁ [t≡u]₁) =
+transEqTerm (Uᵣ′ l′ (≤′-step s))
+            (Uₜ₌ )
+            (Uₜ₌ ) =
               lemma (transEqTerm
-              (Uᵣ′ l′ s D) (Uₜ₌ A B d d′ typeA typeB t≡u [t] [u] [t≡u]) {!!})
+              (Uᵣ′ l′ s) Uₜ₌ {!!})
             where
-              lemma : {ℓ : Nat} {Γ : Con Term ℓ} {t v A : Term ℓ} {l′ n : TypeLevel} {D : Γ ⊢ A :⇒*: U l′} {s : l′ < n} →
-                Γ ⊩⟨ n ⟩ t ≡ v ∷ A / Uᵣ′ l′ s D → Γ ⊩⟨ Nat.suc n ⟩ t ≡ v ∷ A / Uᵣ′ l′ (≤′-step s) D
+              lemma : {ℓ : Nat} {Γ : Con Term ℓ} {t v A : Term ℓ} {l′ n : TypeLevel} {s : l′ < n} →
+                Γ ⊩⟨ n ⟩ t ≡ v ∷ A / Uᵣ′ l′ s → Γ ⊩⟨ Nat.suc n ⟩ t ≡ v ∷ A / Uᵣ′ l′ (≤′-step s)
               lemma = {!!}
 transEqTerm
-  (Bᵣ′ (BΣ 𝕨 p′ q) F G D ⊢F ⊢G A≡A [F] [G] G-ext _)
+  (Bᵣ′ (BΣ 𝕨 p′ q) F G D ⊢F ⊢G A≡A [F] [G] _)
   (Σₜ₌ p r d d′ (ne x) _ p≅r [t] [u] p~r) = {!!}
 transEqTerm = {!!}
