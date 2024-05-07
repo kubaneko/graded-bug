@@ -170,16 +170,6 @@ record EqRelSet : Set (lsuc ℓ) where
                 → Σʷ-allowed p q
                 → Γ ⊢ prodʷ p t u ≅ prodʷ p t′ u′ ∷ Σʷ p , q ▷ F ▹ G
 
-    -- η-equality
-    ≅-η-eq : ∀ {f g F G}
-           → Γ ⊢ F
-           → Γ ⊢ f ∷ Π p , q ▷ F ▹ G
-           → Γ ⊢ g ∷ Π p , q ▷ F ▹ G
-           → Function f
-           → Function g
-           → Γ ∙ F ⊢ wk1 f ∘⟨ p ⟩ var x0 ≅ wk1 g ∘⟨ p ⟩ var x0 ∷ G
-           → Γ ⊢ f ≅ g ∷ Π p , q ▷ F ▹ G
-
     -- η for product types
     ≅-Σ-η : ∀ {r s F G}
           → Γ ⊢ F
@@ -194,12 +184,6 @@ record EqRelSet : Set (lsuc ℓ) where
 
     -- Variable reflexivity
     ~-var : ∀ {x A} → Γ ⊢ var x ∷ A → Γ ⊢ var x ~ var x ∷ A
-
-    -- Application congruence
-    ~-app : ∀ {a b f g F G}
-          → Γ ⊢ f ~ g ∷ Π p , q ▷ F ▹ G
-          → Γ ⊢ a ≅ b ∷ F
-          → Γ ⊢ f ∘⟨ p ⟩ a ~ g ∘⟨ p ⟩ b ∷ G [ a ]₀
 
     -- Product projections congruence
     ~-fst : ∀ {r s F G}
@@ -312,7 +296,6 @@ record EqRelSet : Set (lsuc ℓ) where
           → Γ ∙ F ⊢ G ≅ E
           → BindingType-allowed W
           → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ H ▹ E
-  ≅-W-cong BΠ! = ≅-ΠΣ-cong
   ≅-W-cong BΣ! = ≅-ΠΣ-cong
 
   ≅ₜ-W-cong : ∀ {F G H E} W
@@ -321,5 +304,4 @@ record EqRelSet : Set (lsuc ℓ) where
             → Γ ∙ F ⊢ G ≅ E ∷ U l₂
             → BindingType-allowed W
             → Γ ⊢ ⟦ W ⟧ F ▹ G ≅ ⟦ W ⟧ H ▹ E ∷ U (l₁ ⊔ l₂)
-  ≅ₜ-W-cong BΠ! = ≅ₜ-ΠΣ-cong
   ≅ₜ-W-cong BΣ! = ≅ₜ-ΠΣ-cong
