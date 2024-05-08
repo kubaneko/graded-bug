@@ -1,4 +1,4 @@
-module Definition.Bug
+module Bug
   {a} {M : Set a}
   where
 
