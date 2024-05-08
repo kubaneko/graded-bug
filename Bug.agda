@@ -1,5 +1,4 @@
-module Bug
-  {a} {M : Set a}
+module Bug {a}
   where
 
 open import Agda.Primitive using (lsuc; _⊔_)
@@ -22,10 +21,6 @@ data _≤′_ (m : Nat) : Nat → Set where
 
 _<′_ : (m n : Nat) → Set
 m <′ n = (1+ m) ≤′ n
-
-private
-  variable
-    ℓ l : Nat
 
 data Product {n : Nat} : Set a where
   ne    : Product
