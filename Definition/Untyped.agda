@@ -13,12 +13,9 @@ private
     n : Nat
     t : Term n
 
-data Neutral : Term n → Set a where
-
 -- Weak head normal forms (whnfs).
 
 -- These are the (lazy) values of our language.
 
 data Product {n : Nat} : Term n → Set a where
-  ne    : Neutral t → Product t
-
+  ne    : Product t

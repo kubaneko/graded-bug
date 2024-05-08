@@ -14,6 +14,7 @@ open import Tools.Product using (Σ; ∃₂; _,_)
 
 
 
+
 private
   variable
     ℓ l : Nat
